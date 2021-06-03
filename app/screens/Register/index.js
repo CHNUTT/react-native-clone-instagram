@@ -13,7 +13,13 @@ const Register = () => {
       const result = await firebase
         .auth()
         .createUserWithEmailAndPassword(email.toLowerCase(), password);
-      console.log(result);
+      if (!result) throw new Error('Internal Server Error');
+      const user = await firebase
+        .firestore()
+        .collection('users')
+        .doc(firebase.auth().currentUser.uid)
+        .set({ name, email });
+      console.log(user);
     } catch (error) {
       console.log(error);
     }
