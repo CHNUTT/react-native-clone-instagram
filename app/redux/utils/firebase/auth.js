@@ -28,8 +28,9 @@ export const createUserProfileDocument = async (userAuth, additionalData) => {
 export const getCurrentUser = () => {
   return new Promise((resolve, reject) => {
     const unsubscribe = auth.onAuthStateChanged((userAuth) => {
+      console.log(userAuth);
       unsubscribe();
       resolve(userAuth);
-    }, reject('Not Singin'));
+    }, reject);
   });
 };

@@ -4,6 +4,7 @@ import { userActions } from '../actions';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
+import { getCurrentUser } from '../utils/firebase';
 
 // TOPIC: SIGNUP
 
@@ -34,15 +35,18 @@ function* onSingUp() {
 
 function* handleCheckUserSession() {
   try {
-    const uid = yield firebase.auth().currentUser.uid;
-    if (!uid) throw new Error('Not logged in yet');
+    // const uid = yield firebase.auth().onAuthStateChanged();
+    const userAuth = yield getCurrentUser();
+    if (!userAuth) return;
     const snapshot = yield firebase
       .firestore()
       .collection('users')
-      .doc(uid)
+      .doc(userAuth.uid)
       .get();
     if (snapshot.exists)
-      yield put(userActions.userSignInSuccess(snapshot.data()));
+      yield put(
+        userActions.userSignInSuccess({ id: snapshot.id, ...snapshot.data() })
+      );
     else throw new Error('Does not exist');
   } catch (err) {
     console.log(err);
