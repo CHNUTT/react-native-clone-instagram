@@ -3,8 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { StyleSheet, Text, View } from 'react-native';
+import { Provider } from 'react-redux';
+import { store } from './app/redux/store';
 
-import * as firebase from 'firebase';
+import firebase from 'firebase/app';
+import 'firebase/auth';
 import { firebaseConfig } from './app/configs/firebase';
 
 if (firebase.apps.length === 0) {
@@ -13,6 +16,7 @@ if (firebase.apps.length === 0) {
 
 import LandingScreen from './app/screens/Landing';
 import RegisterScreen from './app/screens/Register';
+import MainScreen from './app/screens/Main';
 
 const Stack = createStackNavigator();
 
@@ -21,7 +25,7 @@ export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    firebase.auth().onAuthStateChanged((user) => {
+    const unlisten = firebase.auth().onAuthStateChanged((user) => {
       if (!user) {
         setLoggedIn(false);
         setLoaded(true);
@@ -30,27 +34,32 @@ export default function App() {
         setLoaded(true);
       }
     });
-  }, []);
+    return () => {
+      unlisten();
+    };
+  });
 
   return !loaded ? (
     <View style={styles.loading}>
       <Text>Loading</Text>
     </View>
   ) : !loggedIn ? (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName='Landing'>
-        <Stack.Screen
-          name='Landing'
-          component={LandingScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name='Register' component={RegisterScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName='Landing'>
+          <Stack.Screen
+            name='Landing'
+            component={LandingScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name='Register' component={RegisterScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </Provider>
   ) : (
-    <View style={styles.loading}>
-      <Text>User is logged in</Text>
-    </View>
+    <Provider store={store}>
+      <MainScreen />
+    </Provider>
   );
 }
 
