@@ -1,28 +1,18 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button } from 'react-native';
-import * as firebase from 'firebase';
+// import * as firebase from 'firebase';
+import { connect } from 'react-redux';
+import { userActions } from '../../redux/actions';
+
 import styles from './styles';
 
-const Register = () => {
+const Register = ({ signUpStart }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const onSignUp = async () => {
-    try {
-      const result = await firebase
-        .auth()
-        .createUserWithEmailAndPassword(email.toLowerCase(), password);
-      if (!result) throw new Error('Internal Server Error');
-      const user = await firebase
-        .firestore()
-        .collection('users')
-        .doc(firebase.auth().currentUser.uid)
-        .set({ name, email });
-      console.log(user);
-    } catch (error) {
-      console.log(error);
-    }
+  const onSignUp = () => {
+    signUpStart({ name, email, password });
   };
 
   return (
@@ -48,4 +38,9 @@ const Register = () => {
   );
 };
 
-export default Register;
+const mapDispatchToProps = (dispatch) => ({
+  signUpStart: (userCredentails) =>
+    dispatch(userActions.userSignUpStart(userCredentails)),
+});
+
+export default connect(null, mapDispatchToProps)(Register);
