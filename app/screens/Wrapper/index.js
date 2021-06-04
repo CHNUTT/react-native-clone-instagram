@@ -11,6 +11,7 @@ import LandingScreen from '../Landing';
 import RegisterScreen from '../Register';
 import MainScreen from '../Main';
 import AddScreen from '../Main/Add';
+import SignInScreen from '../SignIn';
 
 const Stack = createStackNavigator();
 
@@ -32,6 +33,7 @@ const IndexScreen = ({ checkUserSession, currentUser, loading }) => {
           options={{ headerShown: false }}
         />
         <Stack.Screen name='Register' component={RegisterScreen} />
+        <Stack.Screen name='SignIn' component={SignInScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   ) : (
