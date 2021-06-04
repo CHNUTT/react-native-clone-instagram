@@ -10,6 +10,7 @@ import { userActions } from '../../redux/actions';
 import LandingScreen from '../Landing';
 import RegisterScreen from '../Register';
 import MainScreen from '../Main';
+import AddScreen from '../Main/Add';
 
 const Stack = createStackNavigator();
 
@@ -34,7 +35,20 @@ const IndexScreen = ({ checkUserSession, currentUser, loading }) => {
       </Stack.Navigator>
     </NavigationContainer>
   ) : (
-    <MainScreen />
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName='Main'>
+        <Stack.Screen
+          name='Main'
+          component={MainScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name='Add'
+          component={AddScreen}
+          options={{ headerShown: false }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 };
 
