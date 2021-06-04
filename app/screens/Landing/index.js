@@ -11,7 +11,7 @@ const Landing = ({ navigation }) => {
         onPress={() => navigation.navigate('Register')}
       />
       <Button
-        title='SignIn'
+        title='Sign In'
         onPress={() => navigation.navigate('SignIn')}
       />
     </View>

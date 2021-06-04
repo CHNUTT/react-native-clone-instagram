@@ -4,23 +4,31 @@ import { userActions } from '../actions';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
-import { getCurrentUser } from '../utils/firebase';
+import {
+  createUserProfileDocument,
+  getCurrentUser,
+  getUserSnapshot,
+} from '../utils/firebase';
+
+// TODO: Need refector sing in success part //
 
 // TOPIC: SIGNUP //
 
 function* handleOnSignUp({ payload: { name, email, password } }) {
   try {
     yield console.log('signup');
-    const result = yield firebase
+    const { user: userAuth } = yield firebase
       .auth()
       .createUserWithEmailAndPassword(email, password);
-    if (!result) throw new Error('Internal Server Error');
-    const user = yield firebase
-      .firestore()
-      .collection('users')
-      .doc(firebase.auth().currentUser.uid)
-      .set({ name, email });
-    console.log(user);
+    if (!userAuth) throw new Error('Internal Server Error');
+
+    const snapshot = yield createUserProfileDocument(userAuth, name);
+
+    // INFO: Sign in afrer sign up //
+    if (!snapshot.exists) throw new Error('User does not exist');
+    yield put(
+      userActions.userSignInSuccess({ id: snapshot.id, ...snapshot.data() })
+    );
   } catch (err) {
     console.log(err);
     yield put(userActions.userSignUpFailure(err));
@@ -35,12 +43,17 @@ function* onSingUp() {
 
 function* handleOnSignIn({ payload: { email, password } }) {
   try {
-    const result = yield firebase
+    const { user: userAuth } = yield firebase
       .auth()
       .signInWithEmailAndPassword(email.toLowerCase(), password);
-    if (!result) throw new Error('Invalid Credentials');
-    console.log(result.user);
-    yield put(userActions.userSignInSuccess(result.user));
+    if (!userAuth) throw new Error('Invalid Credentials');
+
+    // INFO: Get user from database to get name | need name, email, uid //
+    const snapshot = yield getUserSnapshot(userAuth);
+    if (!snapshot.exists) throw new Error('User does not exist');
+    yield put(
+      userActions.userSignInSuccess({ id: snapshot.id, ...snapshot.data() })
+    );
   } catch (error) {
     console.log(error);
     yield put(userActions.userSignInFailure(error));
@@ -74,16 +87,12 @@ function* handleCheckUserSession() {
     // const uid = yield firebase.auth().onAuthStateChanged();
     const userAuth = yield getCurrentUser();
     if (!userAuth) throw new Error('Not Authenticated');
-    const snapshot = yield firebase
-      .firestore()
-      .collection('users')
-      .doc(userAuth.uid)
-      .get();
-    if (snapshot.exists)
-      yield put(
-        userActions.userSignInSuccess({ id: snapshot.id, ...snapshot.data() })
-      );
-    else throw new Error('Does not exist');
+
+    const snapshot = yield getUserSnapshot(userAuth);
+    if (!snapshot.exists) throw new Error('User does not exist');
+    yield put(
+      userActions.userSignInSuccess({ id: snapshot.id, ...snapshot.data() })
+    );
   } catch (err) {
     console.log(err);
     const { msg } = err;
