@@ -2,7 +2,7 @@ import 'react-native-gesture-handler';
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { connect } from 'react-redux';
 
 import { userActions } from '../../redux/actions';
@@ -13,12 +13,16 @@ import MainScreen from '../Main';
 
 const Stack = createStackNavigator();
 
-const IndexScreen = ({ checkUserSession, currentUser, loaded }) => {
+const IndexScreen = ({ checkUserSession, currentUser, loading }) => {
   useEffect(() => {
     checkUserSession();
-  }, [loaded]);
+  }, []);
 
-  return !currentUser ? (
+  return loading ? (
+    <View>
+      <Text>Loading</Text>
+    </View>
+  ) : !currentUser ? (
     <NavigationContainer>
       <Stack.Navigator initialRouteName='Landing'>
         <Stack.Screen
@@ -36,7 +40,7 @@ const IndexScreen = ({ checkUserSession, currentUser, loaded }) => {
 
 const mapStateToProps = ({ user }) => ({
   currentUser: user.currentUser,
-  loaded: user.loaded,
+  loading: user.loading,
 });
 
 const mapDispatchToProps = (dispatch) => ({
