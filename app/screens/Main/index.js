@@ -1,27 +1,28 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import FeedScreen from './Feed';
 import AddScreen from './Add';
 import ProfileScreen from './Profile';
 
-const Tab = createBottomTabNavigator();
+const Tab = createMaterialBottomTabNavigator();
 
 const MainScreen = () => {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator labeled={false}>
       <Tab.Screen
-        name='Feed'
+        name='FeedTab'
         component={FeedScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name='home' color={color} size={26} />
           ),
         }}
+        
       />
       <Tab.Screen
-        name='AddContainer'
+        name='AddTab'
         listeners={({ navigation }) => ({
           tabPress: (event) => {
             event.preventDefault();
@@ -36,7 +37,7 @@ const MainScreen = () => {
         }}
       />
       <Tab.Screen
-        name='Profile'
+        name='ProfileTab'
         component={ProfileScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
